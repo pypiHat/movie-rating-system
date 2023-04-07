@@ -1,0 +1,1 @@
+exports.movieApp = require('./movie')

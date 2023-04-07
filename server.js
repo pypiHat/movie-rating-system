@@ -5,11 +5,11 @@ app.use(express.json())
 require('dotenv').config()
 
 
-const user = require('./routes/user.route')
+const movie = require('./routes/movie.route')
 
 require('./routes')(app) // register routes
 
-app.use('api/v1/', user)
+app.use('api/v1/movie', movie)
 
 
 const port = process.env.port || 3000
