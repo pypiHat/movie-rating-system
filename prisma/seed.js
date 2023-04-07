@@ -1,42 +1,88 @@
-// ./prisma/seed.ts
-
-import { PrismaClient, Genre } from '@prisma/client';
+const { PrismaClient, Genre } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-async function seed() {
-  const actionMovie = await prisma.movie.create({
-    data: {
-      title: 'Die Hard',
-      genres: [Genre.ACTION],
-      rating: 4,
-    },
-  });
 
-  const comedyMovie = await prisma.movie.create({
-    data: {
-      title: 'The Hangover',
-      genres: [Genre.COMEDY],
-      rating: 3,
-    },
-  });
+// Seed data for User table
+const userData = [
+  {
+    name: "Ali",
+    movies: [
+      {
+        title: "The Dark Knight",
+        genres: ["ACTION", "DRAMA"],
+        rating: 8,
+      },
+      {
+        title: "The Shawshank Redemption",
+        genres: ["DRAMA"],
+        rating: 9,
+      },
+    ],
+  },
+  {
+    name: "hassan gholi",
+    movies: [
+      {
+        title: "Inception",
+        genres: ["ACTION", "SCIENCE_FICTION"],
+      },
+    ],
+  },
+];
 
-  const dramaMovie = await prisma.movie.create({
-    data: {
-      title: 'The Shawshank Redemption',
-      genres: [Genre.DRAMA],
-      rating: 5,
-    },
-  });
+// Seed data for Movie table
+const movieData = [];
 
-  console.log(`Seeded ${actionMovie.title}, ${comedyMovie.title}, and ${dramaMovie.title}`);
+for (const user of userData) {
+  for (const movie of user.movies) {
+    movieData.push({
+      title: movie.title,
+      genres: movie.genres,
+      rating: movie.rating,
+      user: {
+        connect: {
+          name: user.name,
+        },
+      },
+    });
+  }
 }
 
-seed()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
+
+async function main() {
+  const createdUsers = await Promise.all(
+    userData.map((user) =>
+      prisma.user.create({
+        data: {
+          name: user.name,
+        },
+      })
+    )
+  );
+
+  const createdMovies = await Promise.all(
+    movieData.map((movie) =>
+      prisma.movie.create({
+        data: {
+          title: movie.title,
+          genres: movie.genres,
+          rating: movie.rating,
+          user: {
+            connect: {
+              id: createdUsers.find((u) => u.name === movie.user.connect.name).id,
+            },
+          },
+        },
+      })
+    )
+  );
+
+  console.log(`Created ${createdUsers.length} users and ${createdMovies.length} movies.`);
+}
+
+main()
+  .catch((e) => console.error(e))
   .finally(async () => {
     await prisma.$disconnect();
   });

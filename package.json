@@ -4,11 +4,16 @@
   "description": "a simple movie rating endpoints that users can craete movies and rate them",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon server.js",
+    "dev": "DEBUG=express:* nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "dependencies": {
     "@prisma/client": "^4.12.0",
     "dotenv": "^16.0.3",
